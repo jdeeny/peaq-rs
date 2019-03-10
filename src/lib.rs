@@ -5,6 +5,8 @@ extern crate lazy_static;
 
 mod test;
 pub mod earmodel;
+pub mod fbearmodel;
+pub mod fftearmodel;
 
 #[cfg(test)]
 mod tests {
