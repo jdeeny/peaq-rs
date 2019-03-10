@@ -10,5 +10,5 @@ failure = "0.1.5"
 libsoxr = { git = "https://github.com/lrbalt/libsoxr-rs.git" }
 
 [dev-dependencies]
-hound = "3.4.0"
 structopt = "0.2.15"
+rodio = "0.8.1"
