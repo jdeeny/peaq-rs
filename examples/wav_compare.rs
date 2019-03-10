@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use hound;
 
+use peaq::Peaq;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
@@ -32,5 +33,14 @@ fn main() -> Result<(), Error> {
     let mut ref_reader = hound::WavReader::open(opt.file_in)?;
     let mut test_reader = hound::WavReader::open(opt.file_out)?;
 
+    let mut peaq = Peaq::new();
+
+    let ref_spec = ref_reader.spec();
+    let test_spec = test_reader.spec();
+    println!("{:?}\n\n{:?}", ref_spec, test_spec);
+
+    //let result = peaq.compare(ref_reader.samples(), test_reader.samples());
+
+    //println!("Result: {:?}", result);
     Ok(())
 }
