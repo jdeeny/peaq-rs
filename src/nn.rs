@@ -14,8 +14,12 @@ pub fn calc_di_advanced(movs: &[f64]) -> f64 {
     0.
 }
 pub fn calc_odg(di: f64) -> f64 {
-    0.
+    BMIN + (BMAX - BMIN) / (1. + f64::exp(-di))
 }
+
+static BMIN: f64 = -3.98;
+static BMAX: f64 = 0.22;
+
 
 lazy_static! {
     static ref ANIM_BASIC: Vec<f64> = vec! (
