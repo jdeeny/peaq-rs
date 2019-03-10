@@ -7,6 +7,7 @@ mod test;
 pub mod earmodel;
 pub mod fbearmodel;
 pub mod fftearmodel;
+pub mod nn;
 
 #[cfg(test)]
 mod tests {
