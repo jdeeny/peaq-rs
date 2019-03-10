@@ -39,11 +39,9 @@ impl Peaq {
         Self { ref_buffer, test_buffer }
     }
 
-    pub fn compare(&self, ref_rate: f64, ref_in: &[f64], test_rate: f64, test_in: &[f64]) -> Result<PeaqScore, Error> {
-        let ref_channels = 1;
-        let test_channels = 1;
-        let ref_soxr = Soxr::create(ref_rate, PEAQ_RATE, ref_channels, None, None, None)?;
-        let test_soxr = Soxr::create(test_rate, PEAQ_RATE, test_channels, None, None, None)?;
+    pub fn compare(&self, ref_rate: f64, ref_ch: u32, ref_in: &[f64], test_rate: f64, test_ch: u32, test_in: &[f64]) -> Result<PeaqScore, Error> {
+        let ref_soxr = Soxr::create(ref_rate, PEAQ_RATE, ref_ch, None, None, None)?;
+        let test_soxr = Soxr::create(test_rate, PEAQ_RATE, test_ch, None, None, None)?;
 
         self.compare_native(ref_in, test_in)
     }
