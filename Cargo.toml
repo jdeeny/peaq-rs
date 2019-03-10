@@ -8,3 +8,7 @@ edition = "2018"
 lazy_static = "1.3.0"
 failure = "0.1.5"
 libsoxr = { git = "https://github.com/lrbalt/libsoxr-rs.git" }
+
+[dev-dependencies]
+hound = "3.4.0"
+structopt = "0.2.15"
