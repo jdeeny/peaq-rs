@@ -9,10 +9,13 @@ pub mod fbearmodel;
 pub mod fftearmodel;
 pub mod nn;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+#[derive(Default)]
+pub struct Peaq {
+
+}
+
+impl Peaq {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
