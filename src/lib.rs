@@ -15,6 +15,7 @@ pub mod nn;
 pub mod config;
 pub mod leveladapter;
 pub mod modulation;
+pub mod movs;
 
 pub const SAMPLE_RATE: f64 = 48_000.;
 pub const BLOCK_SIZE: usize = 4 * 1024;
@@ -51,6 +52,7 @@ impl Peaq {
     }
 
     pub fn compare(&self, ref_ch: u32, ref_in: &[f64], test_ch: u32, test_in: &[f64]) -> Result<PeaqScore, Error> {
+
 
         Ok(PeaqScore::default())
     }
