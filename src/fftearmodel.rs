@@ -21,3 +21,7 @@ impl EarModel for FFTEarModel {
     fn get_loudness_scale(&self) -> f64 { 1.07664 }
     fn get_stepsize(&self) -> u32 { FRAMESIZE }
 }
+
+impl FFTEarModel {
+    pub fn get_band_count(&self) -> u32 { 0 }
+}

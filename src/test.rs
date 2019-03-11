@@ -1,101 +1,117 @@
 #![cfg(test)]
 
+use crate::{ FFTEarModel, FilterbankEarModel, EarModel, ModulationProcessor, LevelAdapter };
 
 #[test]
 fn test_earmodel() {
-/*
-gint i,frame,band_count;
-gfloat input_data[2048];
-PeaqEarModel *ear;
-PeaqEarModel *fb_ear;
+    let fft_earmodel = FFTEarModel::new();
+    let fb_earmodel = FilterbankEarModel::new();
 
-ear = g_object_new (PEAQ_TYPE_FFTEARMODEL, NULL);
-fb_ear = g_object_new (PEAQ_TYPE_FILTERBANKEARMODEL, NULL);
-gpointer state = peaq_earmodel_state_alloc (ear);
-gpointer fb_state = peaq_earmodel_state_alloc (fb_ear);
+    let band_count = fft_earmodel.get_band_count();
 
-band_count = peaq_earmodel_get_band_count (ear);
 
-for (i = 0; i < 1024; i++)
-  input_data[i] = -1;
-input_data[i++] = 0;
-while (i < 2048)
-  input_data[i++] = 1;
-peaq_earmodel_process_block (ear, state, input_data);
-for (i = 0; i < 2048; i++)
-  input_data[i] = (gfloat) (i - 1024) / 1024;
-peaq_earmodel_process_block (ear, state, input_data);
 
-assertArrayEqualsSq (peaq_fftearmodel_get_power_spectrum (state),
-                     fft_ref_data, 1025,
-             "absolute_spectrum");
+// gint i,frame,band_count;
+// gfloat input_data[2048];
+// PeaqEarModel *ear;
+// PeaqEarModel *fb_ear;
+//
+// ear = g_object_new (PEAQ_TYPE_FFTEARMODEL, NULL);
+// fb_ear = g_object_new (PEAQ_TYPE_FILTERBANKEARMODEL, NULL);
+// gpointer state = peaq_earmodel_state_alloc (ear);
+// gpointer fb_state = peaq_earmodel_state_alloc (fb_ear);
+//
+// band_count = peaq_earmodel_get_band_count (ear);
+//
+// for (i = 0; i < 1024; i++)
+//   input_data[i] = -1;
+// input_data[i++] = 0;
+// while (i < 2048)
+//   input_data[i++] = 1;
+// peaq_earmodel_process_block (ear, state, input_data);
+// for (i = 0; i < 2048; i++)
+//   input_data[i] = (gfloat) (i - 1024) / 1024;
+// peaq_earmodel_process_block (ear, state, input_data);
+//
+// assertArrayEqualsSq (peaq_fftearmodel_get_power_spectrum (state),
+//                      fft_ref_data, 1025,
+//              "absolute_spectrum");
+//
+// assertArrayEqualsSq (peaq_fftearmodel_get_weighted_power_spectrum (state),
+//                      weighted_fft_ref_data,
+//              1025, "weighted_fft");
+//
+// assertArrayEquals (peaq_earmodel_get_unsmeared_excitation (ear, state),
+//                    unsmeared_excitation_ref, band_count,
+//                    "unsmeared_excitation");
+//
+// assertArrayEquals (peaq_earmodel_get_excitation (ear, state), excitation_ref,
+//                    band_count, "excitation");
+//
+// for (frame = 0; frame < 10; frame++) {
+//   gdouble SPL;
+//   for (i = 0; i < 2048; i++)
+//     input_data[i] = sin (2 * M_PI * 1019.5 / 48000. * (i + frame * 1024));
+//   peaq_earmodel_process_block (ear, state, input_data);
+//   SPL = 10*log10 (peaq_fftearmodel_get_power_spectrum (state)[43]);
+//   if (SPL > 92.0001 || SPL < 91.9999) {
+//     g_printf ("SPL == %f != 92\n", SPL);
+//     exit(1);
+//   }
+// }
+//
+// for (frame = 0; frame < 50; frame++) {
+//   /* generate 1kHz sine at 40dB SPL */
+//   gdouble scale = pow (10., (40. - 92.) / 20);
+//   for (i = 0; i < 2048; i++)
+//     input_data[i] = scale * sin (2 * M_PI * 1000. / 48000. * (i + frame * 1024));
+//   peaq_earmodel_process_block (ear, state, input_data);
+// }
+// /* [BS1387] claims that the constants are chosen such that the loudness is 1
+//  * Sone, [Kabal03] already mentions that the algorithm in fact yields 0.584 */
+// gdouble loudness = peaq_earmodel_calc_loudness (ear, state);
+// #if 0
+// if (loudness > 1.01 || loudness < 0.99) {
+// #else
+// if (loudness > 0.59 || loudness < 0.58) {
+// #endif
+//   g_printf ("loudness == %f != 1\n", loudness);
+//   exit(1);
+// }
+//
+// for (frame = 0; frame < 250; frame++) {
+//   /* generate 1kHz sine at 40dB SPL */
+//   gdouble scale = pow (10., (40. - 92.) / 20);
+//   for (i = 0; i < 192; i++)
+//     input_data[i] = scale * sin (2 * M_PI * 1000. / 48000. * (i + frame * 192));
+//   peaq_earmodel_process_block (fb_ear, fb_state, input_data);
+// }
+// loudness = peaq_earmodel_calc_loudness (fb_ear, fb_state);
+// /* [BS1387] claims that the constants are chosen such that the loudness is 1
+//  * Sone, [Kabal03] already mentions that the algorithm in fact yields 0.584
+//  * for the basic version; the advanced also seems to be a bit off */
+// #if 1
+// if (loudness > 1.04 || loudness < 1.03) {
+// #else
+// if (loudness > 0.59 || loudness < 0.58) {
+// #endif
+//   g_printf ("loudness == %f != 1\n", loudness);
+//   exit(1);
+// }
 
-assertArrayEqualsSq (peaq_fftearmodel_get_weighted_power_spectrum (state),
-                     weighted_fft_ref_data,
-             1025, "weighted_fft");
 
-assertArrayEquals (peaq_earmodel_get_unsmeared_excitation (ear, state),
-                   unsmeared_excitation_ref, band_count,
-                   "unsmeared_excitation");
-
-assertArrayEquals (peaq_earmodel_get_excitation (ear, state), excitation_ref,
-                   band_count, "excitation");
-
-for (frame = 0; frame < 10; frame++) {
-  gdouble SPL;
-  for (i = 0; i < 2048; i++)
-    input_data[i] = sin (2 * M_PI * 1019.5 / 48000. * (i + frame * 1024));
-  peaq_earmodel_process_block (ear, state, input_data);
-  SPL = 10*log10 (peaq_fftearmodel_get_power_spectrum (state)[43]);
-  if (SPL > 92.0001 || SPL < 91.9999) {
-    g_printf ("SPL == %f != 92\n", SPL);
-    exit(1);
-  }
-}
-
-for (frame = 0; frame < 50; frame++) {
-  /* generate 1kHz sine at 40dB SPL */
-  gdouble scale = pow (10., (40. - 92.) / 20);
-  for (i = 0; i < 2048; i++)
-    input_data[i] = scale * sin (2 * M_PI * 1000. / 48000. * (i + frame * 1024));
-  peaq_earmodel_process_block (ear, state, input_data);
-}
-/* [BS1387] claims that the constants are chosen such that the loudness is 1
- * Sone, [Kabal03] already mentions that the algorithm in fact yields 0.584 */
-gdouble loudness = peaq_earmodel_calc_loudness (ear, state);
-#if 0
-if (loudness > 1.01 || loudness < 0.99) {
-#else
-if (loudness > 0.59 || loudness < 0.58) {
-#endif
-  g_printf ("loudness == %f != 1\n", loudness);
-  exit(1);
-}
-
-for (frame = 0; frame < 250; frame++) {
-  /* generate 1kHz sine at 40dB SPL */
-  gdouble scale = pow (10., (40. - 92.) / 20);
-  for (i = 0; i < 192; i++)
-    input_data[i] = scale * sin (2 * M_PI * 1000. / 48000. * (i + frame * 192));
-  peaq_earmodel_process_block (fb_ear, fb_state, input_data);
-}
-loudness = peaq_earmodel_calc_loudness (fb_ear, fb_state);
-/* [BS1387] claims that the constants are chosen such that the loudness is 1
- * Sone, [Kabal03] already mentions that the algorithm in fact yields 0.584
- * for the basic version; the advanced also seems to be a bit off */
-#if 1
-if (loudness > 1.04 || loudness < 1.03) {
-#else
-if (loudness > 0.59 || loudness < 0.58) {
-#endif
-  g_printf ("loudness == %f != 1\n", loudness);
-  exit(1);
-}
-
-*/
 }
 #[test]
 fn test_leveladapt() {
+    let earmodel = FFTEarModel::new();
+    let leveladapter = LevelAdapter::new(&earmodel);
+
+    let band_count = earmodel.get_band_count();
+
+    let ref_data: Vec<f64> = (0..=band_count).map(|d| (d + 1) as f64).collect();
+    let test_data: Vec<f64> = (0..=band_count).map(|d| (band_count - d) as f64).collect();
+
+
 /*    guint i, band_count;
     gdouble input_data_ref[109];
     gdouble input_data_test[109];
@@ -135,28 +151,19 @@ fn test_leveladapt() {
 
 #[test]
 fn test_modulation() {
-/*    guint i;
-    gdouble input_data[109];
-    PeaqEarModel *ear;
-    PeaqModulationProcessor *modproc;
+    let earmodel = FFTEarModel::new();
+    let modproc = ModulationProcessor::new();
 
-    ear = g_object_new (PEAQ_TYPE_FFTEARMODEL, NULL);
+    let input_data: Vec<f64> = (0..=109).map(|d| d as f64 + 1.0).collect();
 
-    modproc = peaq_modulationprocessor_new (ear);
-    for (i = 0; i < 109; i++) {
-      input_data[i] = i + 1;
-    }
-    peaq_modulationprocessor_process (modproc, input_data);
-    assertArrayEquals (peaq_modulationprocessor_get_modulation (modproc),
-                       modulation1_ref, 109, "modulation1");
-    assertArrayEquals (peaq_modulationprocessor_get_average_loudness (modproc),
-  		     loudness1_ref, 109, "average_loudness1");
-    peaq_modulationprocessor_process (modproc, input_data);
-    assertArrayEquals (peaq_modulationprocessor_get_modulation (modproc),
-                       modulation2_ref, 109, "modulation2");
-    assertArrayEquals (peaq_modulationprocessor_get_average_loudness (modproc),
-  		     loudness2_ref, 109, "average_loudness2");
-             */
+
+    modproc.process(&input_data);
+    assert_eq!(modproc.modulation().as_slice(), MODULATION1_REF.as_slice(), "Modulation must match reference");
+    assert_eq!(modproc.avg_loudness().as_slice(), LOUDNESS1_REF.as_slice(), "Loudness must match reference");
+    modproc.process(&input_data);
+    assert_eq!(modproc.modulation().as_slice(), MODULATION2_REF.as_slice(), "Modulation must match reference");
+    assert_eq!(modproc.avg_loudness().as_slice(), LOUDNESS2_REF.as_slice(), "Loudness must match reference");
+
 }
 
 

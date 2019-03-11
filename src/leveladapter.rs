@@ -3,3 +3,15 @@
 * differences between reference and test signal and adapts them to each other
 * to compensate level differences and linear distortions.
 */
+
+use crate::EarModel;
+
+pub struct LevelAdapter {
+}
+
+impl LevelAdapter {
+    pub fn new(earmodel: &impl EarModel) -> Self
+    {
+        Self { }
+    }
+}

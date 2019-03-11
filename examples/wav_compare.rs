@@ -64,7 +64,7 @@ fn main() -> Result<(), Error> {
     let ref_soxr = make_resampler(ref_rate, peaq::SAMPLE_RATE, ref_channels)?;
     let test_soxr = make_resampler(test_rate, peaq::SAMPLE_RATE, test_channels)?;
 
-    let peaq = Peaq::new();
+    let peaq = Peaq::new(u32::max(ref_channels, test_channels));
 
     let ref_vec: Vec<f64> = ref_decoder.convert_samples().map(|s: f32| {s as f64}).collect();
     let test_vec: Vec<f64> = test_decoder.convert_samples().map(|s: f32| {s as f64}).collect();
