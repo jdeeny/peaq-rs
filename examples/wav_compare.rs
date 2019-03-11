@@ -1,4 +1,6 @@
 #![feature(duration_float)]
+use libsoxr;
+use libsoxr::Soxr;
 
 use failure::Error;
 use structopt::StructOpt;
@@ -11,23 +13,29 @@ use rodio::{Decoder, Source};
 use peaq::Peaq;
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "basic")]
+#[structopt(name = "wav_compare")]
 struct Opt {
-    /// Activate debug mode
-    #[structopt(short = "d", long = "debug")]
-    debug: bool,
-
-    /// Verbose mode (-v, -vv, -vvv, etc.)
-    #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
-    verbose: u8,
-
     /// Input audio file
-    #[structopt(name = "INPUT FILE", parse(from_os_str))]
+    #[structopt(name = "REFERENCE", parse(from_os_str))]
     file_ref: PathBuf,
 
     /// Output file
-    #[structopt(name = "OUTPUT FILE", parse(from_os_str))]
+    #[structopt(name = "TESTFILE", parse(from_os_str))]
     file_test: PathBuf,
+}
+
+fn make_resampler(in_rate: f64, out_rate: f64, channels: u32) -> Result<Soxr, Error> {
+    use libsoxr::spec::QualityRecipe;
+    use libsoxr::spec::QualityFlags;
+    use libsoxr::datatype::Datatype;
+
+    let io_spec = libsoxr::IOSpec::new(Datatype::Float64I, Datatype::Float64I);
+    let quality_spec = libsoxr::QualitySpec::new(&QualityRecipe::VeryHigh, QualityFlags::HI_PREC_CLOCK);
+
+    let x =
+    Soxr::create(in_rate, out_rate, channels, Some(io_spec), Some(quality_spec), None);
+    println!("{:?}", &x);
+    Ok(x.unwrap())
 }
 
 
@@ -41,8 +49,8 @@ fn main() -> Result<(), Error> {
     let opt = Opt::from_args();
     println!("{:?}", opt);
 
-    let mut ref_decoder = make_source(&opt.file_ref)?;
-    let mut test_decoder = make_source(&opt.file_ref)?;
+    let ref_decoder = make_source(&opt.file_ref)?;
+    let test_decoder = make_source(&opt.file_ref)?;
 
     let ref_rate = ref_decoder.sample_rate() as f64;
     let ref_channels = ref_decoder.channels() as u32;
@@ -53,14 +61,16 @@ fn main() -> Result<(), Error> {
     let test_duration = test_decoder.total_duration().expect("Cannot determine duration of test source.").as_float_secs();
 
     println!("{} {} {}     {} {} {}", ref_rate, ref_channels, ref_duration, test_rate, test_channels, test_duration);
+    let ref_soxr = make_resampler(ref_rate, peaq::SAMPLE_RATE, ref_channels)?;
+    let test_soxr = make_resampler(test_rate, peaq::SAMPLE_RATE, test_channels)?;
 
-    let mut peaq = Peaq::new();
+    let peaq = Peaq::new();
 
     let ref_vec: Vec<f64> = ref_decoder.convert_samples().map(|s: f32| {s as f64}).collect();
     let test_vec: Vec<f64> = test_decoder.convert_samples().map(|s: f32| {s as f64}).collect();
 
-    let result = peaq.compare(ref_rate, ref_channels, &ref_vec, test_rate, test_channels, &test_vec);
+    let result = peaq.compare(ref_channels, &ref_vec, test_channels, &test_vec);
 
-    //println!("Result: {:?}", result);
+    println!("Result: {:?}", result);
     Ok(())
 }
