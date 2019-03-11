@@ -3,21 +3,13 @@ pub trait Mov {
     fn name() -> &'static str;
 }
 
-pub struct Bandwidth {
+mod bandwidth;
+pub use bandwidth::Bandwidth;
 
-}
 
-impl Mov for Bandwidth {
-    fn name() -> &'static str { "Bandwidth" }
-}
+/*
 
-pub struct NoiseMaskRatio {
 
-}
-
-impl Mov for NoiseMaskRatio {
-    fn name() -> &'static str { "NoiseMaskRatio" }
-}
 
 pub struct WindowedModulationDifference {
 
@@ -94,3 +86,5 @@ pub struct LinearDistortion {
 impl Mov for LinearDistortion {
     fn name() -> &'static str { "LinearDistortion" }
 }
+
+*/
