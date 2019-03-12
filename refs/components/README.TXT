@@ -1,0 +1,41 @@
+                 
+
+Conformance test items for 
+the Rec. ITU-R BS.1387 - PEAQ.
+
+Contents:
+
+BS.1387-ConformanceDatabase\ 
+		acodsna.wav
+ 		arefsna.wav
+		bcodtri.wav
+		breftri.wav
+		ccodsax.wav
+		crefsax.wav
+		ecodsmg.wav
+		erefsmg.wav
+		fcodsb1.wav
+		fcodtr1.wav
+		fcodtr2.wav
+		fcodtr3.wav
+		frefsb1.wav
+		freftr1.wav
+		freftr2.wav
+		freftr3.wav
+		gcodcla.wav
+		grefcla.wav
+		icodsna.wav
+		irefsna.wav
+		kcodsme.wav
+		krefsme.wav
+		lcodhrp.wav
+		lcodpip.wav
+		lrefhrp.wav
+		lrefpip.wav
+		mcodcla.wav
+		mrefcla.wav
+		ncodsfe.wav
+		nrefsfe.wav
+ 		scodclv.wav
+		srefclv.wav
+
