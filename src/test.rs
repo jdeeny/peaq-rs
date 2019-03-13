@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use crate::{ FFTEarModel, FilterbankEarModel, EarModel, ModulationProcessor, LevelAdapter };
+use crate::peaq::{ FFTEarModel, FilterbankEarModel, EarModel, ModulationProcessor, LevelAdapter };
 
 #[test]
 fn test_earmodel() {

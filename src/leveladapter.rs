@@ -4,7 +4,7 @@
 * to compensate level differences and linear distortions.
 */
 
-use crate::EarModel;
+use crate::peaq::EarModel;
 
 pub struct LevelAdapter {
 }

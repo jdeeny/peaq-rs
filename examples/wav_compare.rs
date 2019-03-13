@@ -61,8 +61,8 @@ fn main() -> Result<(), Error> {
     let test_duration = test_decoder.total_duration().expect("Cannot determine duration of test source.").as_float_secs();
 
     println!("{} {} {}     {} {} {}", ref_rate, ref_channels, ref_duration, test_rate, test_channels, test_duration);
-    let ref_soxr = make_resampler(ref_rate, peaq::SAMPLE_RATE, ref_channels)?;
-    let test_soxr = make_resampler(test_rate, peaq::SAMPLE_RATE, test_channels)?;
+    let ref_soxr = make_resampler(ref_rate, peaq::peaq::SAMPLE_RATE, ref_channels)?;
+    let test_soxr = make_resampler(test_rate, peaq::peaq::SAMPLE_RATE, test_channels)?;
 
     let peaq = Peaq::new(u32::max(ref_channels, test_channels));
 
