@@ -39,16 +39,33 @@ impl Peaq {
     }
 
     pub fn compare(&self, ref_ch: u32, ref_in: &[f64], test_ch: u32, test_in: &[f64]) -> Result<PeaqScore, Error> {
+
+        // We want to process the input in 2k blocks that overlap by 50%. The 'even' iterators are offset by 1kb
+        // and are interleaved with the 'odd' iterators.
         let zeroes = [0.0f64; 1024];
-        let no_offset = ref_in.clone().iter().chain(zeroes.iter()).chunks(2048);
-        let offset = zeroes.iter().chain(ref_in.clone()).chunks(2048);
-        let interleaved = no_offset.into_iter().interleave(offset.into_iter());
-        for x in interleaved.into_iter() {
-            for y in x {
-                println!("{:?}", y);
+        let padding = [0.0f64; 1024-1];
+
+        let ref_even = zeroes.iter().chain(ref_in.iter().clone()).chain(padding.iter());
+        let ref_odd = ref_in.iter().clone().chain(zeroes.iter()).chain(padding.iter());
+
+        let test_even = zeroes.iter().chain(test_in.iter().clone()).chain(padding.iter());
+        let test_odd = test_in.iter().clone().chain(zeroes.iter()).chain(padding.iter());
+
+        let zipped_even = ref_even.zip(test_even).chunks(2048);
+        let zipped_odd = ref_odd.zip(test_odd).chunks(2048);
+
+        let chunked = zipped_even.into_iter().interleave(zipped_odd.into_iter());
+
+
+        //let even = zeroes.iter().chain(zipped.clone().into_iter());
+        //let odd = zipped.clone().into_iter().chain(zeroes.iter());
+
+        for chunk in chunked.into_iter() {
+            for (r, t) in chunk {
+                print!("{} {}  ", r, t);
             }
+            println!("\n\n\n");
         }
-        //println!("{:?}", &windowed);
 
         Ok(PeaqScore::default())
     }

@@ -66,9 +66,10 @@ fn main() -> Result<(), Error> {
 
     let peaq = Peaq::new(u32::max(ref_channels, test_channels));
 
+    //let ref_vec: Vec<f64> = (0..1045*3).map(|x| x as f64).collect();
+    //let test_vec: Vec<f64> = (0..1045*3).map(|x| x as f64 + 0.01).collect();
     let ref_vec: Vec<f64> = ref_decoder.convert_samples().map(|s: f32| {s as f64}).collect();
     let test_vec: Vec<f64> = test_decoder.convert_samples().map(|s: f32| {s as f64}).collect();
-
     let result = peaq.compare(ref_channels, &ref_vec, test_channels, &test_vec);
 
     println!("Result: {:?}", result);
