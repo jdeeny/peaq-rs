@@ -1,25 +1,32 @@
 use failure::Error;
 use std::default::Default;
 
+use num_complex::Complex;
+
 use std::sync::Arc;
+use std::f64::consts::PI;
 
 use rustfft::{FFTplanner, FFT};
 
 pub struct BasicPeaq {
     config: BasicPeaqConfig,
-    fft: Arc<FFT<f64>>,
+    ref_fft: Arc<FFT<f64>>,
+    test_fft: Arc<FFT<f64>>,
 }
 
 
 pub struct BasicPeaqConfig {
-    framesize: u32,
+    framesize: usize,
     fs: f64,
+    loudness_db: f64,
 }
+
 impl Default for BasicPeaqConfig {
     fn default() -> Self {
         BasicPeaqConfig {
             framesize: 2048,
-            fs: 48_000.
+            fs: 48_000.,
+            loudness_db: 92.,
         }
     }
 }
@@ -27,16 +34,25 @@ impl Default for BasicPeaqConfig {
 impl BasicPeaq {
     pub fn new() -> Self {
         let mut planner = FFTplanner::new(false);
-        let fft = planner.plan_fft(1234);
+        let config = BasicPeaqConfig::default();
+        let ref_fft = planner.plan_fft(config.framesize / 2 - 1);
+        let test_fft = planner.plan_fft(config.framesize / 2 - 1);
 
         Self {
             config: BasicPeaqConfig::default(),
-            fft: fft
+            ref_fft: ref_fft,
+            test_fft: test_fft,
         }
     }
 
+    fn window(&self, n: f64) -> f64 {
+        0.5 * (1. - f64::cos( (2. * PI * n) / (self.config.framesize as f64 -1.) ))
+    }
     pub fn process_frame<'a>(&self, chunk: impl Iterator<Item=(&'a f64,&'a f64)>) {
-
+        let mut inp: [Complex<f64>;2048] = [Complex::new(0., 0.);2048];
+        let mut out: [Complex<f64>;2048] = [Complex::new(0., 0.);2048];
+        self.ref_fft.process(&mut inp, &mut out);
+        self.test_fft.process(&mut inp, &mut out);
     }
 
     // -> excitation patterns
