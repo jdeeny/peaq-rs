@@ -43,7 +43,7 @@ impl Peaq {
         // We want to process the input in 2k blocks that overlap by 50%. The 'even' iterators are offset by 1kb
         // and are interleaved with the 'odd' iterators.
         let zeroes = [0.0f64; 1024];
-        let padding = [0.0f64; 1024-1];
+        let padding = [0.0f64; 1024*2-1];
 
         let ref_even = zeroes.iter().chain(ref_in.iter().clone()).chain(padding.iter());
         let ref_odd = ref_in.iter().clone().chain(zeroes.iter()).chain(padding.iter());
@@ -56,21 +56,20 @@ impl Peaq {
 
         let chunked = zipped_even.into_iter().interleave(zipped_odd.into_iter());
 
-
-        //let even = zeroes.iter().chain(zipped.clone().into_iter());
-        //let odd = zipped.clone().into_iter().chain(zeroes.iter());
-
         for chunk in chunked.into_iter() {
-            for (r, t) in chunk {
-                print!("{} {}  ", r, t);
-            }
-            println!("\n\n\n");
+            self.process_frame(chunk);
+
         }
 
         Ok(PeaqScore::default())
     }
 
-    /*fn process_frame(&self, ref_in: &[[f64; BLOCK_SIZE], test_in: &[f64]) {
+    fn process_frame<'a>(&self, chunk: impl Iterator<Item=(&'a f64,&'a f64)>)
+    {
+        for (r, t) in chunk.into_iter() {
+            print!("{} {}  ", r, t);
+        }
+        println!("\n\n\n");
         // process earmodel
         // -> excitation patterns
         // time spreading
@@ -80,6 +79,6 @@ impl Peaq {
         // Calculate MOVs
         // Neural Network
 
-    }*/
+    }
 
 }
