@@ -1,11 +1,13 @@
 use failure::Error;
 use std::default::Default;
 
-#[derive(Default)]
+use std::sync::Arc;
+
+use rustfft::{FFTplanner, FFT};
+
 pub struct BasicPeaq {
     config: BasicPeaqConfig,
-    fft: (),
-
+    fft: Arc<FFT<f64>>,
 }
 
 
@@ -24,7 +26,13 @@ impl Default for BasicPeaqConfig {
 
 impl BasicPeaq {
     pub fn new() -> Self {
-        Self::default()
+        let mut planner = FFTplanner::new(false);
+        let fft = planner.plan_fft(1234);
+
+        Self {
+            config: BasicPeaqConfig::default(),
+            fft: fft
+        }
     }
 
     pub fn process_frame<'a>(&self, chunk: impl Iterator<Item=(&'a f64,&'a f64)>) {
