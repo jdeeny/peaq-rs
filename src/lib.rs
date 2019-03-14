@@ -10,9 +10,6 @@ use failure::Error;
 
 mod test;
 pub mod peaq;
-pub mod earmodel;
-pub mod fbearmodel;
-pub mod fftearmodel;
 pub mod nn;
 pub mod config;
 pub mod leveladapter;

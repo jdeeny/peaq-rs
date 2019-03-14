@@ -1,8 +1,5 @@
 use failure::Error;
 
-pub use crate::earmodel::EarModel;
-pub use crate::fftearmodel::FFTEarModel;
-pub use crate::fbearmodel::FilterbankEarModel;
 pub use crate::leveladapter::LevelAdapter;
 pub use crate::modulation::ModulationProcessor;
 
@@ -10,6 +7,13 @@ pub const SAMPLE_RATE: f64 = 48_000.;
 pub const BLOCK_SIZE: usize = 4 * 1024;
 
 use itertools::Itertools;
+
+mod basic;
+mod advanced;
+
+use basic::BasicPeaq;
+use advanced::AdvancedPeaq;
+
 
 #[derive(Default, Debug)]
 pub struct PeaqScore {
@@ -19,23 +23,52 @@ pub struct PeaqScore {
 
 
 pub struct Peaq {
-    frame_count: u64,
-    channels: u32,
-    earmodel_fft: FFTEarModel,
-    earmodel_fb: FilterbankEarModel,
-    level_adapter: LevelAdapter,
+    basic: Option<BasicPeaq>,
+    advanced: Option<AdvancedPeaq>,
 }
 
+#[derive(Default)]
+pub struct Band {
+    pub fc: f64,
+    /// internal noise; (13) in [BS1387] (18) in [Kabal03]
+    pub internal_noise: f64,
+
+    pub time_constant: f64,
+    /// excitation threshold; (60) in [BS1387], (70) in [Kabal03]
+    pub excitation_threshold: f64,
+    /// hreshold index; (61) in [BS1387], (69) in [Kabal03]
+    pub threshold: f64,
+    /// Loudness scaling factor; part of (58) in [BS1387], (69) in [Kabal03]
+    pub loudness_factor: f64,
+}
+
+#[derive(Default)]
+pub struct EarModelData {
+    pub bands: Vec<Band>,
+
+    frame_size: u32,
+    step_size: u32,
+    loudness_scale: f64,
+    tau_min: f64,
+    tau_100: f64,
+
+}
+
+#[derive(PartialEq)]
+pub enum PeaqLevel {
+    Basic,
+    Advanced
+}
 
 impl Peaq {
-    pub fn new(channels: u32) -> Self {
+    pub fn new(channels: u32, level: PeaqLevel) -> Self {
+
         let ref_buffer = [0.; BLOCK_SIZE];
         let test_buffer = [0.; BLOCK_SIZE];
         let frame_count = 0;
-        let earmodel_fft = FFTEarModel::new();
-        let earmodel_fb = FilterbankEarModel::new();
-        let level_adapter = LevelAdapter::new(&earmodel_fft);
-        Self { frame_count, channels, earmodel_fft, earmodel_fb, level_adapter }
+        let basic_model = if level == PeaqLevel::Basic { None } else { Some(BasicPeaq::new()) };
+        let advanced_model = if level == PeaqLevel::Advanced { None } else { Some(AdvancedPeaq::new()) };
+        Self { basic: basic_model, advanced: advanced_model }
     }
 
     pub fn compare(&self, ref_ch: u32, ref_in: &[f64], test_ch: u32, test_in: &[f64]) -> Result<PeaqScore, Error> {
@@ -66,19 +99,11 @@ impl Peaq {
 
     fn process_frame<'a>(&self, chunk: impl Iterator<Item=(&'a f64,&'a f64)>)
     {
-        for (r, t) in chunk.into_iter() {
-            print!("{} {}  ", r, t);
+        if let Some(basic) = &self.basic {
+            basic.process_frame(chunk);
+        } else if let Some(advanced) = &self.advanced {
+            advanced.process_frame(chunk);
         }
-        println!("\n\n\n");
-        // process earmodel
-        // -> excitation patterns
-        // time spreading
-        // pattern adaptation
-        // modulation pattern processing
-        // loudness calculation
-        // Calculate MOVs
-        // Neural Network
-
     }
 
 }

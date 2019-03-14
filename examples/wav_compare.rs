@@ -11,6 +11,7 @@ use rodio;
 use rodio::{Decoder, Source};
 
 use peaq::Peaq;
+use peaq::peaq::PeaqLevel;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "wav_compare")]
@@ -64,7 +65,7 @@ fn main() -> Result<(), Error> {
     let ref_soxr = make_resampler(ref_rate, peaq::peaq::SAMPLE_RATE, ref_channels)?;
     let test_soxr = make_resampler(test_rate, peaq::peaq::SAMPLE_RATE, test_channels)?;
 
-    let peaq = Peaq::new(u32::max(ref_channels, test_channels));
+    let peaq = Peaq::new(u32::max(ref_channels, test_channels), PeaqLevel::Basic);
 
     //let ref_vec: Vec<f64> = (0..1045*3).map(|x| x as f64).collect();
     //let test_vec: Vec<f64> = (0..1045*3).map(|x| x as f64 + 0.01).collect();
